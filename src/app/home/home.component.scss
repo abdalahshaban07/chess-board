@@ -1,0 +1,9 @@
+.board {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  iframe {
+    height: 80vh;
+    width: 50%;
+  }
+}
