@@ -2,9 +2,22 @@ import {
   Component,
   OnInit,
   ChangeDetectionStrategy,
+  HostListener,
   ViewChild,
 } from '@angular/core';
-import { MoveChange, NgxChessBoardView } from 'ngx-chess-board';
+import { HistoryMove, MoveChange, NgxChessBoardView } from 'ngx-chess-board';
+import { GameHistoryService } from '../services/game-history.service';
+
+export interface Move extends MoveChange {
+  color: string;
+  mate: boolean;
+  move: string;
+  from?: string;
+  gameEnd?: false;
+  winner?: string;
+  reset?: boolean;
+  moveHistory?: [];
+}
 
 @Component({
   selector: 'app-player1',
@@ -13,33 +26,47 @@ import { MoveChange, NgxChessBoardView } from 'ngx-chess-board';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Player1Component implements OnInit {
-  @ViewChild('board', { static: false }) board!: NgxChessBoardView;
+  @ViewChild('board1', { static: true }) board!: NgxChessBoardView;
+  moveFromPlayer2!: Move;
+  moveHistory: HistoryMove[] = [];
 
-  ngOnInit(): void {}
+  constructor(private gameHistoryServ: GameHistoryService) {}
 
-  onClose(): void {
-    const frame = window.parent.document.getElementById('player1IFrame');
-    frame?.parentNode?.removeChild(frame);
+  @HostListener('window:message', ['$event'])
+  onMessage(e: any) {
+    this.moveFromPlayer2 = e.data;
+    if (
+      this.moveFromPlayer2.from !== 'main' &&
+      this.moveFromPlayer2.color !== 'white'
+    )
+      return;
+    else if (this.moveFromPlayer2.reset) {
+      this.board.reset();
+    } else {
+      this.board.move(e.data.move);
+    }
+  }
+
+  ngOnInit(): void {
+    //get histor move from local storage
+    this.moveHistory = this.gameHistoryServ.getItem();
+    this.moveHistory.forEach((move) => {
+      this.board.move(move.move);
+    });
   }
 
   captureMove(move: MoveChange): void {
-    console.log({ move });
-    //     check: false
-    // checkmate: false
-    // color: "white"
-    // fen: "rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
-    // freeMode: false
-    // mate: false
-    // move: "e2e3"
-    // pgn:
-    // pgn: "1. e3"
-
-    // piece: "Pawn"
-    // stalemate: false
-    // x: false
-    // const frame = window.parent.document.getElementById(
-    //   'player1IFrame'
-    // ) as HTMLIFrameElement;
-    // frame?.contentWindow?.postMessage(move, '*');
+    this.moveHistory = this.board.getMoveHistory();
+    if (move.checkmate) {
+      window.parent.postMessage(
+        { gameEnd: true, winner: 'player1' },
+        'http://localhost:4200'
+      );
+    } else {
+      window.parent.postMessage(
+        { moveHistory: this.moveHistory, ...move },
+        'http://localhost:4200'
+      );
+    }
   }
 }

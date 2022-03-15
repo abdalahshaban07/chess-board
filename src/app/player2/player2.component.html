@@ -1,4 +1,10 @@
 <h2 style="text-align: center">Player2</h2>
-<ngx-chess-board [size]="400" class="player2"></ngx-chess-board>
+<ngx-chess-board
+  [size]="400"
+  class="player2"
+  #board2
+  (moveChange)="captureMove($event)"
+  [lightDisabled]="true"
+></ngx-chess-board>
 
 <!-- <button (click)="onClose()">Close</button> -->

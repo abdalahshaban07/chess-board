@@ -13,11 +13,10 @@
     #player2IFrame
     frameborder="0"
   ></iframe>
-  <!-- <iframe
-    style="height: 500px; width: 100%"
-    #iframe1
-    (load)="onLoad(iframe1)"
-  ></iframe> -->
 </div>
 
-<!-- <button (click)="onStartGame()" *ngIf="!displayIFrame">start Game</button> -->
+<div class="resetbtn">
+  <button (click)="resetGame()" *ngIf="moveFromPlayer?.gameEnd">
+    Create new game
+  </button>
+</div>
