@@ -40,7 +40,6 @@ export class Player2Component implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(origin);
     //get histor move from local storage
     this.moveHistory = this.gameHistoryServ.getItem();
     this.moveHistory.forEach((move) => {

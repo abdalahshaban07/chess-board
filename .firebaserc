@@ -1,5 +1,14 @@
 {
+  "targets": {
+    "chess-board-5380b": {
+      "hosting": {
+        "chess-board": [
+          "chess-board-5380b"
+        ]
+      }
+    }
+  },
   "projects": {
-    "default": "chess-board-8ce2a"
+    "default": "chess-board-5380b"
   }
 }
