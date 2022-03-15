@@ -1,9 +1,10 @@
 <h2 style="text-align: center">Player2</h2>
-<ngx-chess-board
-  [size]="400"
-  class="player2"
-  #board2
-  (moveChange)="captureMove($event)"
-  [lightDisabled]="true"
-></ngx-chess-board>
 
+<div class="player2">
+  <ngx-chess-board
+    [size]="400"
+    #board2
+    (moveChange)="captureMove($event)"
+    [lightDisabled]="true"
+  ></ngx-chess-board>
+</div>

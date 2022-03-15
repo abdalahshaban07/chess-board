@@ -15,8 +15,6 @@
   ></iframe>
 </div>
 
-<div class="resetbtn">
-  <button (click)="resetGame()" *ngIf="moveFromPlayer?.gameEnd">
-    Create new game
-  </button>
+<div class="resetbtn" *ngIf="moveFromPlayer?.gameEnd">
+  <button (click)="resetGame()">Create new game</button>
 </div>
