@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { Move } from '../player1/player1.component';
 
-origin = 'http://localhost:4200';
+export let origin = environment.origin;
 
 @Injectable({
   providedIn: 'root',

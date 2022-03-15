@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { HistoryMove, MoveChange, NgxChessBoardView } from 'ngx-chess-board';
 import { GameHistoryService } from '../services/game-history.service';
+import { origin } from '../services/message.service';
 
 export interface Move extends MoveChange {
   color: string;
@@ -58,14 +59,11 @@ export class Player1Component implements OnInit {
   captureMove(move: MoveChange): void {
     this.moveHistory = this.board.getMoveHistory();
     if (move.checkmate) {
-      window.parent.postMessage(
-        { gameEnd: true, winner: 'player1' },
-        'http://localhost:4200'
-      );
+      window.parent.postMessage({ gameEnd: true, winner: 'player1' }, origin);
     } else {
       window.parent.postMessage(
         { moveHistory: this.moveHistory, ...move },
-        'http://localhost:4200'
+        origin
       );
     }
   }
