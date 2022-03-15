@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  origin: 'http://localhost:4200',
+  origin: 'https://chess-board-8ce2a.web.app/',
 };

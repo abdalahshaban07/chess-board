@@ -34,11 +34,12 @@ export class Player1Component implements OnInit {
   constructor(private gameHistoryServ: GameHistoryService) {}
 
   @HostListener('window:message', ['$event'])
-  onMessage(e: any) {
+  onMessage(e: MessageEvent) {
     this.moveFromPlayer2 = e.data;
     if (
       this.moveFromPlayer2.from !== 'main' &&
-      this.moveFromPlayer2.color !== 'white'
+      this.moveFromPlayer2.color !== 'white' &&
+      e.origin !== origin
     )
       return;
     else if (this.moveFromPlayer2.reset) {
@@ -49,6 +50,8 @@ export class Player1Component implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log(origin);
+
     //get histor move from local storage
     this.moveHistory = this.gameHistoryServ.getItem();
     this.moveHistory.forEach((move) => {

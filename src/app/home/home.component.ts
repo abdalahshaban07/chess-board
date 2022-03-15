@@ -43,10 +43,10 @@ export class HomeComponent implements OnInit {
   beforeUnload(event: Event): void {
     //before closing the window ,store the game state in the local storage
     this.gameHistoryServ.setItem(this.moveFromPlayer?.moveHistory);
-    alert('before unload');
   }
 
   ngOnInit(): void {
+    console.log(origin);
     this.onStartGame();
   }
 

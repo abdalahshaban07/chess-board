@@ -28,7 +28,8 @@ export class Player2Component implements OnInit {
     this.moveFromPlayer1 = e.data;
     if (
       this.moveFromPlayer1.from !== 'main' &&
-      this.moveFromPlayer1.color !== 'black'
+      this.moveFromPlayer1.color !== 'black' &&
+      e.origin !== origin
     )
       return;
     else if (this.moveFromPlayer1.reset) {
@@ -39,6 +40,7 @@ export class Player2Component implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log(origin);
     //get histor move from local storage
     this.moveHistory = this.gameHistoryServ.getItem();
     this.moveHistory.forEach((move) => {
