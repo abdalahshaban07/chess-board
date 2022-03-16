@@ -1,21 +1,26 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { Player1Component } from './player1/player1.component';
-import { Player2Component } from './player2/player2.component';
+import { StartComponent } from './start/start.component';
 
 const routes: Routes = [
   {
-    path: 'player1',
-    component: Player1Component,
+    path: '',
+    redirectTo: 'start',
+    pathMatch: 'full',
   },
   {
-    path: 'player2',
-    component: Player2Component,
+    path: 'start',
+    component: StartComponent,
   },
   {
-    path: '**',
-    component: HomeComponent,
+    path: 'two',
+    loadChildren: () =>
+      import('./two-board/two-board.module').then((m) => m.TwoBoardModule),
+  },
+  {
+    path: 'one',
+    loadChildren: () =>
+      import('./one-board/one-board.module').then((m) => m.OneBoardModule),
   },
 ];
 

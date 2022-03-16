@@ -1,0 +1,14 @@
+.routeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  button {
+    margin: 1rem;
+    padding: 1rem;
+    background-color: darkgoldenrod;
+    border-radius: 10px;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+}

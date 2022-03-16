@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { Move } from '../player1/player1.component';
+import { Move } from '../two-board/player1/player1.component';
 
 export let origin = environment.origin;
 

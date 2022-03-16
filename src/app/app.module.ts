@@ -1,21 +1,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { NgxChessBoardModule } from 'ngx-chess-board';
-import { Player1Component } from './player1/player1.component';
-import { Player2Component } from './player2/player2.component';
-import { HomeComponent } from './home/home.component';
+import { OneBoardModule } from './one-board/one-board.module';
+import { TwoBoardModule } from './two-board/two-board.module';
+import { StartComponent } from './start/start.component';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    Player1Component,
-    Player2Component,
-    HomeComponent,
-  ],
-  imports: [BrowserModule, AppRoutingModule, NgxChessBoardModule.forRoot()],
+  declarations: [AppComponent, StartComponent],
+  imports: [BrowserModule, AppRoutingModule, TwoBoardModule, OneBoardModule],
   providers: [],
   bootstrap: [AppComponent],
 })
