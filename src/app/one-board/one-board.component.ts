@@ -36,13 +36,9 @@ export class OneBoardComponent implements OnInit {
   ngOnInit(): void {
     this.roomId = this.route.snapshot.paramMap.get('roomId') as string;
 
-    // let moveHistory = this.gameHistoryServ.getItem('gameHistoryOneBoard');
-    // moveHistory.forEach((move: Move) => {
-    //   this.board.move(move.move);
-    // });
-    const col = this.afs.collection('items');
-    console.log({
-      items: col.valueChanges().subscribe((data) => console.log(data)),
+    let moveHistory = this.gameHistoryServ.getItem('gameHistoryOneBoard');
+    moveHistory.forEach((move: Move) => {
+      this.board.move(move.move);
     });
   }
 
@@ -56,7 +52,6 @@ export class OneBoardComponent implements OnInit {
   }
 
   captureMove(move: any): void {
-    console.log({ move });
     if (move.checkmate) {
       if (move.color === 'white') {
         alert('Player 1 win');
@@ -72,7 +67,6 @@ export class OneBoardComponent implements OnInit {
 
   copyId() {
     //get the id of the game from url
-    console.log({ roomId: this.roomId });
     navigator.clipboard
       .writeText(this.roomId)
       .then()
