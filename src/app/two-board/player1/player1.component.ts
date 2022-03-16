@@ -26,7 +26,7 @@ export interface Move extends MoveChange {
   templateUrl: './player1.component.html',
   styleUrls: ['./player1.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.ShadowDom,
+  // encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class Player1Component implements OnInit {
   @ViewChild('board1', { static: true }) board!: NgxChessBoardView;

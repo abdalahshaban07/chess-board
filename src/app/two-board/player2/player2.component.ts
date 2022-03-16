@@ -16,7 +16,7 @@ import { origin } from '../../services/message.service';
   templateUrl: './player2.component.html',
   styleUrls: ['./player2.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  encapsulation: ViewEncapsulation.ShadowDom,
+  // encapsulation: ViewEncapsulation.ShadowDom,
 })
 export class Player2Component implements OnInit {
   @ViewChild('board2', { static: true }) board!: NgxChessBoardView;
