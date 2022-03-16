@@ -59,7 +59,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.onStartGame();
+    // this.onStartGame();
   }
 
   ngAfterViewInit(): void {
