@@ -6,10 +6,11 @@ import { Injectable } from '@angular/core';
 export class GameHistoryService {
   constructor() {}
 
-  setItem(data: [] = []): void {
-    localStorage.setItem('gameHistory', JSON.stringify(data));
+  setItem(key: string, data: [] = []): void {
+    localStorage.setItem(key, JSON.stringify(data));
   }
-  getItem(key: string = 'gameHistory'): [] {
-    return JSON.parse(localStorage.getItem('gameHistory') || '[]');
+
+  getItem(key: string): [] {
+    return JSON.parse(localStorage.getItem(key) || '[]');
   }
 }

@@ -1,0 +1,35 @@
+<div class="welBtn">
+  <button (click)="createNewGame()">Create New Game</button>
+  <button (click)="joinGame()">Join Game</button>
+</div>
+
+<div class="newGameForm" *ngIf="newGameForm">
+  <form [formGroup]="newGameform" (ngSubmit)="createGame()">
+    <label>
+      <input
+        type="text"
+        name="playerName"
+        placeholder="Player Name"
+        formControlName="name"
+      />
+    </label>
+    <button type="submit" [disabled]="!newGameform.valid">Create Game</button>
+  </form>
+</div>
+
+<div class="joinForm" *ngIf="showjoinForm">
+  <form [formGroup]="joinForm" (ngSubmit)="joinAndStartGame()">
+    <label>
+      <input
+        type="text"
+        name="playerName"
+        placeholder="Player Name"
+        formControlName="name"
+      />
+    </label>
+    <label>
+      <input type="text" name="roomId" placeholder="Id" formControlName="id" />
+    </label>
+    <button type="submit" [disabled]="!joinForm.valid">Join Game</button>
+  </form>
+</div>

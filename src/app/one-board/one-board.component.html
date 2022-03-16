@@ -1,1 +1,15 @@
-<p>one-board works!</p>
+<div class="flex board">
+  <ngx-chess-board
+    [size]="400"
+    #board
+    (moveChange)="captureMove($event)"
+  ></ngx-chess-board>
+</div>
+
+<div class="copybtn">
+  <button (click)="copyId()">Copy your code Game To Play with friend</button>
+</div>
+
+<div class="resetbtn" *ngIf="gameEnd">
+  <button (click)="resetGame()">Create new game</button>
+</div>

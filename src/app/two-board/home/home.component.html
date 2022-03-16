@@ -1,6 +1,16 @@
 <div class="board">
-  <iframe id="player1IFrame" #player1IFrame frameborder="0"></iframe>
-  <iframe id="player2IFrame" #player2IFrame frameborder="0"></iframe>
+  <iframe
+    [src]="iFrame1Url"
+    id="player1IFrame"
+    #player1IFrame
+    frameborder="0"
+  ></iframe>
+  <iframe
+    [src]="iFrame2Url"
+    id="player2IFrame"
+    #player2IFrame
+    frameborder="0"
+  ></iframe>
 </div>
 
 <div class="resetbtn" *ngIf="moveFromPlayer?.gameEnd">

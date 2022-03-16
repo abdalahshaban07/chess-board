@@ -9,6 +9,7 @@ import {
   ComponentRef,
   ViewChild,
   ElementRef,
+  SecurityContext,
 } from '@angular/core';
 import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser';
 import { Move, Player1Component } from '../player1/player1.component';
@@ -53,22 +54,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   @HostListener('window:beforeunload', ['$event'])
   beforeUnload(event: BeforeUnloadEvent): void {
-    confirm('Are you sure you want to leave?');
     //before closing the window ,store the game state in the local storage
-    this.gameHistoryServ.setItem(this.moveFromPlayer?.moveHistory);
+    this.gameHistoryServ.setItem(
+      'gameHistory',
+      this.moveFromPlayer?.moveHistory
+    );
   }
 
   ngOnInit(): void {
-    // this.onStartGame();
+    this.onStartGame();
   }
 
   ngAfterViewInit(): void {
     Promise.resolve().then(() => {
-      this.createAndEmbedComponent();
+      // this.createAndEmbedComponent();
     });
   }
 
-  private createAndEmbedComponent(): void {
+  createAndEmbedComponent(): void {
     //  resolves component
     const componentFactory1 =
       this.resolver.resolveComponentFactory(Player1Component);
@@ -97,8 +100,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   onStartGame(): void {
     this.displayIFrame = true;
-    this.iFrame1Url = this.sanitizer.bypassSecurityTrustResourceUrl('/player1');
-    this.iFrame2Url = this.sanitizer.bypassSecurityTrustResourceUrl('/player2');
+    // this.iFrame1Url = this.sanitizer.bypassSecurityTrustResourceUrl('/player1');
+    // this.iFrame2Url = this.sanitizer.bypassSecurityTrustResourceUrl('/player2');
+    this.iFrame1Url = this.sanitizer.bypassSecurityTrustResourceUrl(
+      this.sanitizer.sanitize(SecurityContext.URL, 'player1') as string
+    );
+    this.iFrame2Url = this.sanitizer.bypassSecurityTrustResourceUrl(
+      this.sanitizer.sanitize(SecurityContext.URL, 'player2') as string
+    );
   }
 
   showAlert(): void {

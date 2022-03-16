@@ -21,13 +21,19 @@ export class BeforeLeveGuard implements CanDeactivate<HomeComponent> {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
-    let confirmAns = confirm(
-      'Do you want to leave? If Ok I will save your game state to back again to contiune later'
-    );
-    if (!confirmAns) {
-      return false;
+    if (component?.moveFromPlayer?.moveHistory?.length) {
+      let confirmAns = confirm(
+        'Do you want to leave? If Ok I will save your game state to back again to contiune later'
+      );
+      if (!confirmAns) {
+        return false;
+      }
+      this.gameHistoryServ.setItem(
+        'gameHistory',
+        component?.moveFromPlayer.moveHistory
+      );
+      return true;
     }
-    this.gameHistoryServ.setItem(component?.moveFromPlayer.moveHistory);
     return true;
   }
 }
