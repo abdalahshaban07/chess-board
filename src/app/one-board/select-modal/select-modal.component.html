@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <button type="button" class="close" (click)="activeModal.dismiss('close')">
+    x
+  </button>
+</div>
+<div class="modal-body text-center">
+  <p>Please Select the piece you want to start</p>
+</div>
+<div class="modal-footer center">
+  <button
+    type="button"
+    class="btn btn-outline-primary"
+    style="margin-inline: 10px"
+    (click)="activeModal.close('w')"
+  >
+    White pieces
+  </button>
+  <button
+    type="button"
+    class="btn btn-outline-dark"
+    (click)="activeModal.close('b')"
+  >
+    Black pieces
+  </button>
+</div>

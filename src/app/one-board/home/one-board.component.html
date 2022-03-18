@@ -1,0 +1,27 @@
+<p>{{ member?.name }}</p>
+<p>{{ oponent?.name }}</p>
+<div class="board flex">
+  <ngx-chess-board
+    [size]="400"
+    #board
+    [lightDisabled]="lightDisabled()"
+    [darkDisabled]="darkDisabled()"
+    (moveChange)="captureMove($event)"
+  ></ngx-chess-board>
+</div>
+
+<div class="flex">
+  <div class="copybtn" *ngIf="showCopyLink()">
+    <label
+      style="display: block"
+      [ngStyle]="{ color: gameDataObj?.status === 'waiting' ? 'red' : 'green' }"
+      >{{ gameDataObj?.status }}</label
+    >
+    <label style="display: block"> go to ({{ origin }}/one) and Join</label>
+    <button (click)="copyId()">Copy Room ID</button>
+  </div>
+
+  <div class="resetbtn" *ngIf="isGameOver">
+    <button (click)="resetGame()">Create new game</button>
+  </div>
+</div>

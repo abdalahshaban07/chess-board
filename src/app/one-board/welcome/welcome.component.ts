@@ -5,19 +5,21 @@ import {
   AngularFirestoreCollection,
 } from '@angular/fire/compat/firestore';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { db } from '../firebase/config';
+
+import { db, auth } from '../firebase/config';
 import {
   collection,
   addDoc,
   updateDoc,
   doc,
   getDoc,
-  getDocs,
-  where,
-  query,
   arrayUnion,
+  setDoc,
 } from 'firebase/firestore';
+import { signInAnonymously } from 'firebase/auth';
 import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SelectModalComponent } from '../select-modal/select-modal.component';
 
 @Component({
   selector: 'app-welcome',
@@ -31,12 +33,15 @@ export class WelcomeComponent implements OnInit {
   newGameform!: FormGroup;
   joinForm!: FormGroup;
 
+  pieceSelect!: string;
+
   playersCollection!: AngularFirestoreCollection;
   roomsCollection!: AngularFirestoreCollection;
   constructor(
     private fb: FormBuilder,
     private afs: AngularFirestore,
-    private router: Router
+    private router: Router, // private auth: AngularFireAuth
+    private modalService: NgbModal
   ) {}
 
   ngOnInit(): void {
@@ -59,30 +64,23 @@ export class WelcomeComponent implements OnInit {
 
   createNewGame() {
     this.createNewGameForm();
+    this.showjoinForm = false;
     this.newGameForm = true;
   }
 
   joinGame() {
     this.createJoinForm();
+    this.newGameForm = false;
     this.showjoinForm = true;
   }
 
   async createGame() {
     if (!this.newGameform.valid) return;
-
     const { name } = this.newGameform.value;
-
+    localStorage.setItem('userName', name);
     try {
-      const { id: playerRef } = await addDoc(collection(db, 'players'), {
-        name,
-      });
-
-      const { id: roomId } = await addDoc(collection(db, 'rooms'), {
-        players: [playerRef],
-      });
-
-      // go to game
-      this.router.navigate(['online', roomId]);
+      await signInAnonymously(auth);
+      this.open();
     } catch (error) {
       console.error('Error adding document: ', error);
     }
@@ -90,38 +88,45 @@ export class WelcomeComponent implements OnInit {
 
   async joinAndStartGame() {
     if (!this.joinForm.valid) return;
+    const { name, id } = this.joinForm.value;
+    localStorage.setItem('userName', name);
+    this.router.navigate(['online', id]);
+    try {
+      await signInAnonymously(auth);
+    } catch (error) {
+      console.error('Error adding document: ', error);
+    }
+  }
 
-    const { id: roomId, name } = this.joinForm.value;
+  open() {
+    const modalRef = this.modalService.open(SelectModalComponent);
+    modalRef.componentInstance.name = 'select piece';
+    modalRef.closed.subscribe((result) => {
+      //"w" or "b"
+      this.pieceSelect = result;
+      this.startOnlineGame();
+    });
+  }
 
-    const roomRef = doc(db, 'rooms', roomId);
-    const roomshot = await getDoc(roomRef);
+  async startOnlineGame() {
+    const member = {
+      uid: auth.currentUser?.uid,
+      piece: this.pieceSelect,
+      name: localStorage.getItem('userName'),
+      creator: true,
+      reverse: false,
+    };
 
-    // if room is exist ==> check if room full ==> full ==> alert to create new game bec room full ==> else ==> add player to room ==> go to game
-    // if room is not exist ==> alert user to create new game becaues room not exist
-
-    if (roomshot.exists()) {
-      const { players } = roomshot.data();
-      //check if room full
-      if (players.length >= 2) {
-        alert('Room is full');
-        return;
-      }
-      //add player to room
-      try {
-        const { id: playerRef } = await addDoc(collection(db, 'players'), {
-          name,
-        });
-
-        await updateDoc(roomRef, {
-          players: arrayUnion(playerRef),
-        });
-        // go to game
-        this.router.navigate(['online', roomId]);
-      } catch (error) {
-        console.error('Error adding document: ', error);
-      }
-    } else {
-      alert('Room not exist please create new game');
+    const game = {
+      status: 'waiting',
+      members: [member],
+      gameId: this.afs.createId(),
+    };
+    try {
+      await setDoc(doc(db, 'games', game.gameId), game);
+      this.router.navigate(['online', game.gameId]);
+    } catch (error) {
+      console.error('Error adding document: ', error);
     }
   }
 }
