@@ -1,8 +1,17 @@
 .board {
-  height: 70vh;
+  margin-block: 2rem;
 }
 
-
+.nameDiv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  p {
+    margin: 0;
+    margin-bottom: 0;
+  }
+}
 
 .copybtn,
 .resetbtn {
@@ -19,4 +28,10 @@
   button:hover {
     transform: scale(1.01);
   }
+}
+
+.toastCon {
+  position: absolute;
+  right: 1vh;
+  top: 0;
 }

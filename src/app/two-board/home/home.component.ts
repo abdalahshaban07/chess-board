@@ -16,6 +16,8 @@ import { Move, Player1Component } from '../player1/player1.component';
 import { GameHistoryService } from '../../services/game-history.service';
 import { MessageService } from '../../services/message.service';
 import { Player2Component } from '../player2/player2.component';
+import { ToastService } from 'src/app/services/toast.service';
+import { ToastClass } from 'src/app/one-board/interfaces/Toast.Enum';
 
 @Component({
   selector: 'app-home',
@@ -38,7 +40,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private messageServ: MessageService,
     private gameHistoryServ: GameHistoryService,
     private vcRef: ViewContainerRef,
-    private resolver: ComponentFactoryResolver
+    private resolver: ComponentFactoryResolver,
+    private toastService: ToastService
   ) {}
 
   @HostListener('window:message', ['$event'])
@@ -112,7 +115,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   showAlert(): void {
     this.winner = this.moveFromPlayer.winner;
-    alert(`${this.winner} wins!`);
+    this.toastService.show(`${this.winner} wins!`, {
+      classname: `bg-${ToastClass.Success} text-light`,
+      delay: 3000,
+      autohide: true,
+    });
   }
   resetGame(): void {
     this.winner = undefined;

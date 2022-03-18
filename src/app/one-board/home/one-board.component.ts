@@ -1,45 +1,41 @@
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-  OnDestroy,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { NgxChessBoardView } from 'ngx-chess-board';
 import { db, auth } from '../firebase/config';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GameHistoryService } from 'src/app/services/game-history.service';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { map } from 'rxjs/operators';
-import { AngularFirestore } from '@angular/fire/compat/firestore';
+import {
+  arrayUnion,
+  doc,
+  DocumentReference,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+} from 'firebase/firestore';
 import { origin } from 'src/app/services/message.service';
+import { ToastService } from 'src/app/services/toast.service';
+import { ToastClass } from '../interfaces/Toast.Enum';
+import { Game } from '../interfaces/Game';
+import { Member } from '../interfaces/Member';
 
 @Component({
   selector: 'app-one-board',
   templateUrl: './one-board.component.html',
   styleUrls: ['./one-board.component.scss'],
-  // changeDetection: ChangeDetectionStrategy.OnPush,
-  // providers: [AngularFirestore],
 })
 export class OneBoardComponent implements OnInit, OnDestroy {
   @ViewChild('board', { static: false }) board!: NgxChessBoardView;
   roomId!: string;
   isGameOver: boolean = false;
-  gameSubject!: any;
-  member: any;
-  GameRef!: any;
-  oponent!: any;
-  currUser!: any;
+  member!: Member;
+  oponent!: Member;
+  GameRef!: DocumentReference;
   gameDoc!: any;
-  winner!: string;
+  winner!: string | null;
   origin = origin;
-  gameDataObj!: any;
+  gameDataObj!: Game;
   constructor(
-    private gameHistoryServ: GameHistoryService,
     private route: ActivatedRoute,
     private router: Router,
-    private afs: AngularFirestore,
-    private cd: ChangeDetectorRef
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -53,37 +49,29 @@ export class OneBoardComponent implements OnInit, OnDestroy {
 
     //check if the game is exist
     if (docSnap.exists()) {
-      const data = docSnap.data();
+      const data = docSnap.data() as Game;
       await this.handleJoinGame(data);
     } else {
       //if the game is not found ==> got to the one game to create a new game
-      alert('game not found');
+      this.showCustomToast('Room Not Found', ToastClass.Error, true);
       this.router.navigate(['/one']);
     }
   }
 
-  async handleJoinGame(docSnap: any) {
+  async handleJoinGame(docSnap: Game) {
     const { status, members } = docSnap;
-    const creator = members.find((m: any) => m.creator === true);
-
+    const creator = members.find((m: any) => m.creator === true) as Member;
     //check if the user is the creator of the game
-    if (status === 'waiting' && creator.uid !== auth.currentUser?.uid) {
-      this.currUser = {
-        uid: auth.currentUser?.uid,
-        name: localStorage.getItem('userName'),
-        piece: creator.piece === 'w' ? 'b' : 'w',
-        reverse: true,
-      };
-
-      const updatedMembers = [...members, this.currUser];
-      await updateDoc(this.GameRef, {
-        members: updatedMembers,
-        status: 'ready',
-      });
+    if (status === 'waiting' && creator?.uid !== auth.currentUser?.uid) {
+      await this.handleNewMember(creator, members);
     } else if (
       !members.map((m: any) => m.uid).includes(auth.currentUser?.uid)
     ) {
-      alert('You are not part of this game');
+      this.showCustomToast(
+        'You are not part of this game',
+        ToastClass.Info,
+        true
+      );
       this.router.navigate(['/one']);
     }
     this.board.reset();
@@ -98,39 +86,53 @@ export class OneBoardComponent implements OnInit, OnDestroy {
   //   );
   // }
 
-  trackChanges() {
-    this.gameDoc = this.afs
-      .collection('games')
-      .doc(this.roomId)
-      .valueChanges()
-      .pipe(
-        map((gameDoc: any) => {
-          this.gameDataObj = gameDoc;
-          const { winner, isGameOver, gameData } = gameDoc;
-          this.member = this.gameDataObj?.members.find(
-            (m: any) => m.uid === auth.currentUser?.uid
-          );
-          this.oponent = this.gameDataObj?.members.find(
-            (m: any) => m.uid !== auth.currentUser?.uid
-          );
+  async handleNewMember(creator: Member, members: Member[]) {
+    let currUser: Member = {
+      uid: auth.currentUser?.uid as string,
+      name: localStorage.getItem('userName') as string,
+      piece: creator.piece === 'w' ? 'b' : 'w',
+      reverse: creator.piece === 'w' ? true : false,
+    };
 
-          if (gameData) {
-            this.board.setFEN(gameData);
-          }
-          if (isGameOver) {
-            this.mangeAlert(`${winner} won the game`);
-          }
-          if (this.oponent?.reverse && this.oponent?.piece === 'b') {
-            this.board.reverse();
-          }
-        })
-      )
-      .subscribe();
+    await updateDoc(this.GameRef, {
+      members: arrayUnion(currUser),
+      status: 'ready',
+    });
+  }
+
+  trackChanges() {
+    this.gameDoc = onSnapshot(this.GameRef, (doc: any) => {
+      if (!doc.exists()) return;
+      this.gameDataObj = doc.data() as Game;
+      const { winner, isGameOver, gameData, members } = doc.data();
+      this.member = members.find(
+        (m: any) => m.uid === auth.currentUser?.uid
+      ) as Member;
+      this.oponent = members.find(
+        (m: any) => m.uid !== auth.currentUser?.uid
+      ) as Member;
+
+      if (gameData) {
+        this.board.setFEN(gameData);
+      }
+
+      if (isGameOver) {
+        this.showCustomToast(
+          `${winner} won the game`,
+          ToastClass.Success,
+          true,
+          5000
+        );
+      }
+
+      //handle board reverse
+      if (this.handleReverse()) {
+        this.board.reverse();
+      }
+    });
   }
 
   lightDisabled() {
-    // console.log(this.gameDataObj);
-
     return (
       (this.member?.piece === 'b' && this.oponent?.piece !== 'b') ||
       this.gameDataObj?.status === 'waiting'
@@ -163,16 +165,15 @@ export class OneBoardComponent implements OnInit, OnDestroy {
         ? this.member?.name
         : this.oponent?.name;
 
+    setTimeout(() => {
+      this.resetGame();
+    }, 5000);
+
     await updateDoc(this.GameRef, {
       gameData: this.board.getFEN(),
       isGameOver: this.isGameOver,
       winner: this.winner,
     });
-  }
-
-  mangeAlert(message: string) {
-    alert(message);
-    return false;
   }
 
   async resetGame() {
@@ -188,7 +189,8 @@ export class OneBoardComponent implements OnInit, OnDestroy {
   }
 
   showCopyLink(): boolean {
-    return this.member?.creator && this.member?.uid === auth.currentUser?.uid;
+    return (this.member?.creator &&
+      this.member?.uid === auth.currentUser?.uid) as boolean;
   }
 
   copyId() {
@@ -198,7 +200,33 @@ export class OneBoardComponent implements OnInit, OnDestroy {
       .catch((e) => console.error(e));
   }
 
+  showCustomToast(
+    customTpl: string,
+    className: ToastClass,
+    autohide: boolean = true,
+    delay: number = 500
+  ) {
+    this.toastService.show(customTpl, {
+      classname: `bg-${className} text-light`,
+      delay,
+      autohide,
+    });
+  }
+
+  showUserName(): boolean {
+    return this.member?.uid === auth.currentUser?.uid;
+  }
+
+  handleReverse(): boolean {
+    let checkReverse = this.oponent?.reverse || this.member?.reverse;
+    let checkColor =
+      (this.oponent?.piece === 'b' && this.member?.piece === 'b') ||
+      this.oponent?.piece === 'w';
+
+    return checkColor;
+  }
+
   ngOnDestroy(): void {
-    this.gameDoc?.unsubscribe();
+    this.gameDoc();
   }
 }

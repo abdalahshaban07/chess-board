@@ -7,19 +7,13 @@ import {
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { db, auth } from '../firebase/config';
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  doc,
-  getDoc,
-  arrayUnion,
-  setDoc,
-} from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { signInAnonymously } from 'firebase/auth';
 import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SelectModalComponent } from '../select-modal/select-modal.component';
+import { Member } from '../interfaces/Member';
+import { Game } from '../interfaces/Game';
 
 @Component({
   selector: 'app-welcome',
@@ -44,10 +38,7 @@ export class WelcomeComponent implements OnInit {
     private modalService: NgbModal
   ) {}
 
-  ngOnInit(): void {
-    // this.playersCollection = this.afs.collection('players');
-    // this.roomsCollection = this.afs.collection('rooms');
-  }
+  ngOnInit(): void {}
 
   createNewGameForm() {
     this.newGameform = this.fb.group({
@@ -77,8 +68,8 @@ export class WelcomeComponent implements OnInit {
   async createGame() {
     if (!this.newGameform.valid) return;
     const { name } = this.newGameform.value;
-    localStorage.setItem('userName', name);
     try {
+      localStorage.setItem('userName', name);
       await signInAnonymously(auth);
       this.open();
     } catch (error) {
@@ -89,10 +80,10 @@ export class WelcomeComponent implements OnInit {
   async joinAndStartGame() {
     if (!this.joinForm.valid) return;
     const { name, id } = this.joinForm.value;
-    localStorage.setItem('userName', name);
-    this.router.navigate(['online', id]);
     try {
+      localStorage.setItem('userName', name);
       await signInAnonymously(auth);
+      this.router.navigate(['online', id]);
     } catch (error) {
       console.error('Error adding document: ', error);
     }
@@ -109,15 +100,15 @@ export class WelcomeComponent implements OnInit {
   }
 
   async startOnlineGame() {
-    const member = {
-      uid: auth.currentUser?.uid,
+    const member: Member = {
+      uid: auth.currentUser?.uid as string,
       piece: this.pieceSelect,
-      name: localStorage.getItem('userName'),
+      name: localStorage.getItem('userName') as string,
       creator: true,
-      reverse: false,
+      reverse: this.pieceSelect === 'w' ? false : true,
     };
 
-    const game = {
+    const game: Game = {
       status: 'waiting',
       members: [member],
       gameId: this.afs.createId(),

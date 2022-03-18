@@ -1,5 +1,11 @@
-<p>{{ member?.name }}</p>
-<p>{{ oponent?.name }}</p>
+<div class="toastCon">
+  <app-toast></app-toast>
+</div>
+
+<div class="nameDiv">
+  <p *ngIf="showUserName()">{{ member?.name }}</p>
+  <p *ngIf="!showUserName()">{{ oponent?.name }}</p>
+</div>
 <div class="board flex">
   <ngx-chess-board
     [size]="400"
@@ -7,6 +13,7 @@
     [lightDisabled]="lightDisabled()"
     [darkDisabled]="darkDisabled()"
     (moveChange)="captureMove($event)"
+    [showLastMove]="false"
   ></ngx-chess-board>
 </div>
 
@@ -17,8 +24,10 @@
       [ngStyle]="{ color: gameDataObj?.status === 'waiting' ? 'red' : 'green' }"
       >{{ gameDataObj?.status }}</label
     >
-    <label style="display: block"> go to ({{ origin }}/one) and Join</label>
-    <button (click)="copyId()">Copy Room ID</button>
+    <div *ngIf="gameDataObj?.status === 'waiting'">
+      <label style="display: block"> go to ({{ origin }}/one) and Join</label>
+      <button (click)="copyId()">Copy Room ID</button>
+    </div>
   </div>
 
   <div class="resetbtn" *ngIf="isGameOver">
