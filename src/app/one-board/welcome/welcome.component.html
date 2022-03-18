@@ -34,7 +34,12 @@
       />
     </label>
     <label>
-      <input type="text" name="roomId" placeholder="Id" formControlName="id" />
+      <input
+        type="text"
+        name="roomId"
+        placeholder="Room Id"
+        formControlName="id"
+      />
     </label>
     <button type="submit" [disabled]="!joinForm.valid">Join Game</button>
   </form>
